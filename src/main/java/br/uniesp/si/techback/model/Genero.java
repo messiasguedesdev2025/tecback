@@ -22,6 +22,7 @@ public class Genero {
     private Long id;
 
     @Column(nullable = false, length = 100, unique = true)
+    @PalavrasBloqueadas
     private String nome;
 
     @Column(length = 255)
