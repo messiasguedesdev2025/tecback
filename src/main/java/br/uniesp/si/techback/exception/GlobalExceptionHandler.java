@@ -7,10 +7,12 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -19,9 +21,37 @@ import java.util.Map;
  * @ControllerAdvice - Anotação que permite tratar exceções em toda a aplicação de forma centralizada.
  * Todas as exceções lançadas pelos controladores serão capturadas aqui.
  */
-@ControllerAdvice
+
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
+
+
+    @ExceptionHandler(CepInvalidoException.class)
+    public ResponseEntity<Object> handleCepInvalido(CepInvalidoException ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "CEP inválido");
+        body.put("message", ex.getMessage());
+        body.put("path", request.getDescription(false).replace("uri=", ""));
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CepNaoEncontradoException.class)
+    public ResponseEntity<Object> handleCepNaoEncontrado(CepNaoEncontradoException ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("error", "CEP não encontrado");
+        body.put("message", ex.getMessage());
+        body.put("path", request.getDescription(false).replace("uri=", ""));
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
+    
     /**
      * Trata exceções de validação lançadas quando os dados de entrada são inválidos.
      * 
