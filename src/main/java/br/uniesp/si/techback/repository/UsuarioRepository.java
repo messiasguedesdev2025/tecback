@@ -1,9 +1,9 @@
 package br.uniesp.si.techback.repository;
 
-import br.uniesp.si.techback.model.Filme;
+import br.uniesp.si.techback.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface FilmeRepository extends JpaRepository<Filme, Long> {
+public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 }
