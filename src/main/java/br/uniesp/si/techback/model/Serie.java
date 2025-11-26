@@ -1,5 +1,6 @@
 package br.uniesp.si.techback.model;
 
+import br.uniesp.si.techback.validation.TitulosBloqueados;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class Serie {
     private Long id;
 
     @Column(nullable = false, length = 100)
+    @TitulosBloqueados
     private String titulo;
 
     @Column(length = 500)

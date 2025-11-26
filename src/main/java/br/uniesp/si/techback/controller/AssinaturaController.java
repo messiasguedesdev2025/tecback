@@ -1,0 +1,55 @@
+package br.uniesp.si.techback.controller;
+
+import br.uniesp.si.techback.model.Assinatura;
+import br.uniesp.si.techback.service.AssinaturaService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/assinaturas")
+@RequiredArgsConstructor
+public class AssinaturaController {
+
+    private final AssinaturaService assinaturaService;
+
+    // POST: Cria uma nova assinatura
+    @PostMapping
+    public ResponseEntity<Assinatura> criar(@Valid @RequestBody Assinatura assinatura) {
+        // Espera JSON com os IDs aninhados: {"plano": {"id": 1}, "usuario": {"id": 1}, "dataInicio": "..."}
+        Assinatura novaAssinatura = assinaturaService.criar(assinatura);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novaAssinatura);
+    }
+
+    // GET: Lista todas as assinaturas
+    @GetMapping
+    public ResponseEntity<List<Assinatura>> listarTodos() {
+        return ResponseEntity.ok(assinaturaService.listarTodos());
+    }
+
+    // GET: Busca uma assinatura pelo ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Assinatura> buscarPorId(@PathVariable Long id) {
+        Assinatura assinatura = assinaturaService.buscarPorId(id);
+        return ResponseEntity.ok(assinatura);
+    }
+
+    // PUT: Atualiza uma assinatura
+    @PutMapping("/{id}")
+    public ResponseEntity<Assinatura> atualizar(@PathVariable Long id,
+                                                @Valid @RequestBody Assinatura assinaturaAtualizada) {
+        Assinatura assinatura = assinaturaService.atualizar(id, assinaturaAtualizada);
+        return ResponseEntity.ok(assinatura);
+    }
+
+    // DELETE: Deleta uma assinatura
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        assinaturaService.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
+}
