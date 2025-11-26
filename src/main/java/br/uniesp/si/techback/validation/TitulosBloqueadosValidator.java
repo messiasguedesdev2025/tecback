@@ -16,7 +16,7 @@ import java.util.List;
  * Para adicionar mais palavras, basta incluí-las na lista PALAVRAS_BLOQUEADAS.
  */
 
-public class TitulosBloqueadosFilmeValidator implements ConstraintValidator<TitulosBloqueadosFilme, String> {
+public class TitulosBloqueadosValidator implements ConstraintValidator<TitulosBloqueados, String> {
 
     // Lista de palavras que não são permitidas nos títulos de filmes
     // Esta lista pode ser facilmente estendida conforme necessário

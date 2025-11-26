@@ -9,23 +9,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "filmes")
-public class Filme {
+@Table(name = "favoritos")
+public class Favorito {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String titulo;
-
-    @Column(length = 500)
-    private String descricao;
-
-    private int duracaoMinutos;
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 
     @ManyToOne
-    @JoinColumn(name = "genero_id", nullable = false)
-    private Genero genero;
+    @JoinColumn(name = "filme_id")
+    private Filme filme;
 
+    @ManyToOne
+    @JoinColumn(name = "serie_id")
+    private Serie serie;
 }

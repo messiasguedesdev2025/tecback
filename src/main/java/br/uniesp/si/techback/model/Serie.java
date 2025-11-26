@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "filmes")
-public class Filme {
+@Table(name = "series")
+public class Serie {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +22,9 @@ public class Filme {
     @Column(length = 500)
     private String descricao;
 
-    private int duracaoMinutos;
+    private int totalEpisodios;
+
+    private int temporadas;
 
     @ManyToOne
     @JoinColumn(name = "genero_id", nullable = false)

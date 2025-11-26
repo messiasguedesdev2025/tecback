@@ -1,5 +1,6 @@
 package br.uniesp.si.techback.model;
 
+import br.uniesp.si.techback.validation.TitulosBloqueados;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,23 +10,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "filmes")
-public class Filme {
+@Table(name = "generos")
+public class Genero {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String titulo;
+    @Column(nullable = false, unique = true, length = 50)
+    @TitulosBloqueados
+    private String nome;
 
-    @Column(length = 500)
+    @Column(length = 200)
     private String descricao;
-
-    private int duracaoMinutos;
-
-    @ManyToOne
-    @JoinColumn(name = "genero_id", nullable = false)
-    private Genero genero;
-
 }

@@ -15,10 +15,10 @@ import java.lang.annotation.*;
  */
 
 @Documented
-@Constraint(validatedBy = TitulosBloqueadosFilmeValidator.class)
+@Constraint(validatedBy = TitulosBloqueadosValidator.class)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TitulosBloqueadosFilme {
+public @interface TitulosBloqueados {
     String message() default "O título contém palavras não permitidas";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
