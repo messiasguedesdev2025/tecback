@@ -1,6 +1,6 @@
 package br.uniesp.si.techback.service;
 
-import br.uniesp.si.techback.dto.ViaCepResponse;
+import br.uniesp.si.techback.dto.response.ViaCepResponse;
 import br.uniesp.si.techback.exception.CepInvalidoException;
 import br.uniesp.si.techback.exception.CepNaoEncontradoException;
 import lombok.RequiredArgsConstructor;

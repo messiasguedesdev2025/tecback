@@ -1,6 +1,6 @@
 package br.uniesp.si.techback.controller;
 
-import br.uniesp.si.techback.dto.ViaCepResponse;
+import br.uniesp.si.techback.dto.response.ViaCepResponse;
 import br.uniesp.si.techback.service.ViaCepService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

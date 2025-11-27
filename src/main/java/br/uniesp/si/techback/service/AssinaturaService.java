@@ -1,5 +1,6 @@
 package br.uniesp.si.techback.service;
 
+import br.uniesp.si.techback.dto.request.AssinaturaRequestDTO;
 import br.uniesp.si.techback.model.Assinatura;
 import br.uniesp.si.techback.model.Plano;
 import br.uniesp.si.techback.model.Usuario; // Assumindo que a model existe
@@ -39,6 +40,24 @@ public class AssinaturaService {
         return assinaturaRepository.save(assinatura);
     }
 
+    // Recebe um DTO simplificado e faz a busca das dependências por ID
+    public Assinatura criarComDTO(AssinaturaRequestDTO dto) {
+
+        // 1. Busca as dependências (Plano e Usuário) usando os IDs do DTO
+        Plano planoExistente = planoService.buscarPorId(dto.getPlanoId());
+        Usuario usuarioExistente = usuarioService.buscarPorId(dto.getUsuarioId());
+
+        // 2. Mapeamento dos campos do DTO para a Entity
+        Assinatura novaAssinatura = new Assinatura();
+        novaAssinatura.setUsuario(usuarioExistente);
+        novaAssinatura.setPlano(planoExistente);
+        novaAssinatura.setDataInicio(dto.getDataInicio());
+        novaAssinatura.setDataFim(dto.getDataFim());
+        novaAssinatura.setStatus(dto.getStatus());
+
+        // Vantagem: Lógica de negócio e validação ficam isoladas e limpas
+        return assinaturaRepository.save(novaAssinatura);
+    }
     /**
      * Retorna todas as assinaturas.
      */

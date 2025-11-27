@@ -9,10 +9,14 @@ import java.util.List;
 @Repository
 public interface FavoritoRepository extends JpaRepository<Favorito, Long> {
 
-    // Útil para listar todos os favoritos de um usuário
+    // 1. Útil para listar todos os favoritos de um usuário específico
     List<Favorito> findByUsuarioId(Long usuarioId);
 
-    // Útil para evitar duplicidade: verificar se um usuário já favoritou um filme/série
-    boolean existsByUsuarioIdAndFilmeId(Long usuarioId, Long filmeId);
-    boolean existsByUsuarioIdAndSerieId(Long usuarioId, Long serieId);
+    // 2. Essencial para verificar a unicidade (se o usuário já favoritou este item)
+    // Busca um favorito pelo ID do Usuário, ID do Item (Filme/Série) e Tipo do Item.
+    boolean existsByUsuarioIdAndItemIdAndItemType(
+            Long usuarioId,
+            Long itemId,
+            String itemType
+    );
 }

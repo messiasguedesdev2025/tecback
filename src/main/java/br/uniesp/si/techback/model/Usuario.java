@@ -2,6 +2,8 @@ package br.uniesp.si.techback.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +28,8 @@ public class Usuario {
     private String email;
 
     @Column(nullable = false, length = 100)
+    @NotBlank(message = "A senha é obrigatória.") // Não pode ser nula ou vazia (apenas espaços)
+    @Size(min = 8, max = 128, message = "A senha deve ter entre 8 e 30 caracteres.") // <-- VALIDAÇÃO DE TAMANHO
     private String senha;
 
     @ManyToOne

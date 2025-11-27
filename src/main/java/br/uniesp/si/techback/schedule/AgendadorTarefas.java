@@ -1,3 +1,4 @@
+/*
 package br.uniesp.si.techback.schedule;
 
 import br.uniesp.si.techback.cache.ServicoCacheExemplo;
@@ -11,10 +12,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
 
+*/
 /**
  * Exemplo de classe que demonstra o uso de agendamento com Spring Scheduler.
  * Esta classe contém métodos que são executados em intervalos regulares.
- */
+ *//*
+
 @Component
 @EnableScheduling
 public class AgendadorTarefas {
@@ -78,3 +81,4 @@ public class AgendadorTarefas {
         LOGGER.info("Tarefa executada dentro da janela de tempo: {}", LocalTime.now());
     }
 }
+*/

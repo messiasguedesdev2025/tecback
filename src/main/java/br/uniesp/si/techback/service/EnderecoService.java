@@ -1,6 +1,6 @@
 package br.uniesp.si.techback.service;
 
-import br.uniesp.si.techback.dto.ViaCepResponse;
+import br.uniesp.si.techback.dto.response.ViaCepResponse;
 import br.uniesp.si.techback.model.Endereco;
 import br.uniesp.si.techback.repository.EnderecoRepository;
 import lombok.RequiredArgsConstructor;

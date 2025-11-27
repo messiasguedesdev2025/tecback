@@ -1,7 +1,9 @@
 package br.uniesp.si.techback.controller;
 
+import br.uniesp.si.techback.dto.response.FavoritoResponseDTO;
 import br.uniesp.si.techback.model.Favorito;
 import br.uniesp.si.techback.service.FavoritoService;
+import br.uniesp.si.techback.dto.request.FavoritoRequestDTO; // <-- NOVO IMPORT
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,17 +19,37 @@ public class FavoritoController {
 
     private final FavoritoService favoritoService;
 
-    // POST: Adiciona um item (Filme OU Série) aos favoritos
-    @PostMapping
+    // Em FavoritoController.java
+
+    @PostMapping // Endpoint para testar o método sem DTO
     public ResponseEntity<Favorito> criar(@Valid @RequestBody Favorito favorito) {
-        // Espera um JSON com um dos seguintes formatos:
-        // 1) {"usuario": {"id": 1}, "filme": {"id": 5}}
-        // 2) {"usuario": {"id": 1}, "serie": {"id": 10}}
+
         Favorito novoFavorito = favoritoService.criar(favorito);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(novoFavorito);
+    }
+    // POST: Adiciona um item (Filme OU Série) aos favoritos
+    @PostMapping("/criar-com-dto")
+    // MUDANÇA: Agora recebe o DTO de Requisição e não a Entity completa.
+    public ResponseEntity<FavoritoResponseDTO> criarComDTO(@Valid @RequestBody FavoritoRequestDTO dto) {
+
+        // A lógica de criação foi transferida para aceitar o DTO no Service,
+        // garantindo que a validação de tipo de item seja feita.
+        Favorito novoFavorito = favoritoService.criarComDTO(dto);
+        // Agora que a service respondeu, vou transformar novoFavorito numa forma DTO
+
+        FavoritoResponseDTO favoritoDTO = new FavoritoResponseDTO();
+        favoritoDTO.setId(novoFavorito.getId());
+        favoritoDTO.setItemId(novoFavorito.getItemId());
+        favoritoDTO.setItemType(novoFavorito.getItemType());
+        favoritoDTO.setUsuarioId(novoFavorito.getUsuario().getId());
+        favoritoDTO.setUsuarioEmail(novoFavorito.getUsuario().getEmail());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(favoritoDTO);
     }
 
     // GET: Lista todos os favoritos (Pode ser refinado para listar por usuário)
+    // Esses métodos continuam retornando a Entity, pois a serialização resolve a FK.
     @GetMapping
     public ResponseEntity<List<Favorito>> listarTodos() {
         return ResponseEntity.ok(favoritoService.listarTodos());
@@ -44,7 +66,18 @@ public class FavoritoController {
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<Favorito>> listarPorUsuario(@PathVariable Long usuarioId) {
         List<Favorito> favoritos = favoritoService.listarPorUsuario(usuarioId);
+
         return ResponseEntity.ok(favoritos);
+    }
+
+    @GetMapping("/usuarioDTO/{usuarioId}")
+//  MUDANÇA: Retorna a lista de DTOs
+    public ResponseEntity<List<FavoritoResponseDTO>> listarPorUsuarioDTO(@PathVariable Long usuarioId) {
+
+        // 🚨 MUDANÇA: Chama o método que retorna a lista de DTOs
+        List<FavoritoResponseDTO> favoritosDTO = favoritoService.listarPorUsuarioComDTO(usuarioId);
+
+        return ResponseEntity.ok(favoritosDTO);
     }
 
 

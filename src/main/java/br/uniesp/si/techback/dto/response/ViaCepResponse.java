@@ -1,4 +1,4 @@
-package br.uniesp.si.techback.dto;
+package br.uniesp.si.techback.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

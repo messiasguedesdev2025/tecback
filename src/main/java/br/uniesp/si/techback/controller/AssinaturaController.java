@@ -1,5 +1,6 @@
 package br.uniesp.si.techback.controller;
 
+import br.uniesp.si.techback.dto.request.AssinaturaRequestDTO;
 import br.uniesp.si.techback.model.Assinatura;
 import br.uniesp.si.techback.service.AssinaturaService;
 import jakarta.validation.Valid;
@@ -22,6 +23,14 @@ public class AssinaturaController {
     public ResponseEntity<Assinatura> criar(@Valid @RequestBody Assinatura assinatura) {
         // Espera JSON com os IDs aninhados: {"plano": {"id": 1}, "usuario": {"id": 1}, "dataInicio": "..."}
         Assinatura novaAssinatura = assinaturaService.criar(assinatura);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novaAssinatura);
+    }
+
+    // A) ENDPOINT USANDO DTO
+    @PostMapping("/dto")
+    public ResponseEntity<Assinatura> criarComDto(@Valid @RequestBody AssinaturaRequestDTO dto) {
+        // Chama o método que usa o DTO
+        Assinatura novaAssinatura = assinaturaService.criarComDTO(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaAssinatura);
     }
 

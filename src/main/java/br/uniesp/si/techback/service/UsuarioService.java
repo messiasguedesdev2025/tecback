@@ -4,9 +4,11 @@ import br.uniesp.si.techback.model.Usuario;
 import br.uniesp.si.techback.model.Endereco;
 import br.uniesp.si.techback.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import jakarta.validation.Valid;
 
 @Service
 @RequiredArgsConstructor
@@ -14,13 +16,13 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final EnderecoService enderecoService; // Injetando o serviço de Endereço
-
+    private final PasswordEncoder passwordEncoder;
     // O ideal seria injetar um PasswordEncoder aqui, mas usaremos a senha simples por enquanto.
 
     /**
      * Cria um novo usuário, validando o email e as dependências.
      */
-    public Usuario criar(Usuario usuario) {
+    public Usuario criar(@Valid Usuario usuario) {
         // 1. Validação de Unicidade
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
             throw new RuntimeException("Já existe um usuário cadastrado com o email: " + usuario.getEmail());
@@ -37,6 +39,8 @@ public class UsuarioService {
         }
 
         // 3. (Sugestão de Segurança): A senha DEVE ser criptografada aqui na produção!
+        String senhaCriptografada = passwordEncoder.encode(usuario.getSenha());
+        usuario.setSenha(senhaCriptografada); // Substitui a senha original pela hasheada
         // Ex: usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
 
         return usuarioRepository.save(usuario);
@@ -80,10 +84,10 @@ public class UsuarioService {
         usuarioExistente.setNome(usuarioAtualizado.getNome());
         usuarioExistente.setEmail(usuarioAtualizado.getEmail());
 
-        // Senha só deve ser atualizada se for fornecida no objeto de atualização.
+        // Se a senha foi fornecida na atualização, ela DEVE ser criptografada.
         if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isEmpty()) {
-            // Criptografar antes de salvar!
-            usuarioExistente.setSenha(usuarioAtualizado.getSenha());
+            String novaSenhaCriptografada = passwordEncoder.encode(usuarioAtualizado.getSenha());
+            usuarioExistente.setSenha(novaSenhaCriptografada);
         }
 
         return usuarioRepository.save(usuarioExistente);
