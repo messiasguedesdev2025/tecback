@@ -14,6 +14,7 @@ public interface AssinaturaRepository extends JpaRepository<Assinatura, Long> {
 
     // Método útil para buscar assinaturas por usuário e status
     List<Assinatura> findByUsuarioIdAndStatus(Long usuarioId, Assinatura.StatusAssinatura status);
+
     @Query("SELECT a FROM Assinatura a " +
             "WHERE a.status = 'ATIVA' " +
             "AND a.dataFim BETWEEN CURRENT_TIMESTAMP() AND :dataAlvo")
