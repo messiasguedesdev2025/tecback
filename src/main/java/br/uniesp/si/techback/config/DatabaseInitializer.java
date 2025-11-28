@@ -46,6 +46,7 @@ public class DatabaseInitializer implements CommandLineRunner {
         Genero ficcao = createAndSaveGenero("Ficção Científica"); // Adicionado mais um gênero para exemplo
 
         // 3. CRIAÇÃO DE FILMES
+        // Código Refatorado: limpo e direto
         createAndSaveFilme("Filme de Ação 1", "Descrição do filme de ação 1", 2023, acao);
         createAndSaveFilme("Filme de Comédia 1", "Descrição do filme de comédia 1", 2023, comedia);
         createAndSaveFilme("Filme de Ação 2", "Descrição do filme de ação 2", 2022, acao);
@@ -78,6 +79,8 @@ public class DatabaseInitializer implements CommandLineRunner {
      * Helper Method: Cria e salva uma nova instância de Filme.
      */
     private void createAndSaveFilme(String titulo, String descricao, Integer anoLancamento, Genero genero) {
+        // Código Antigo: repetitivo e verboso
+
         Filme filme = new Filme();
         filme.setTitulo(titulo);
         filme.setDescricao(descricao);
