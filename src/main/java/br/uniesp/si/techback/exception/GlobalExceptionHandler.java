@@ -1,6 +1,7 @@
 package br.uniesp.si.techback.exception;
 
-// Importações necessárias para o tratamento de exceções
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -25,10 +26,11 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(CepInvalidoException.class)
     public ResponseEntity<Object> handleCepInvalido(CepInvalidoException ex, WebRequest request) {
+        logger.warn("CEP Inválido: {}", ex.getMessage());
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST.value());
@@ -41,6 +43,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CepNaoEncontradoException.class)
     public ResponseEntity<Object> handleCepNaoEncontrado(CepNaoEncontradoException ex, WebRequest request) {
+        logger.warn("CEP Não Encontrado: {}", ex.getMessage());
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.NOT_FOUND.value());
@@ -51,7 +54,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    
     /**
      * Trata exceções de validação lançadas quando os dados de entrada são inválidos.
      * 
@@ -77,6 +79,8 @@ public class GlobalExceptionHandler {
             // Adiciona o erro ao mapa
             errors.put(fieldName, errorMessage);
         });
+
+        logger.warn("Erro de validação: {}", errors);
 
         // Obtém a primeira mensagem de erro para o campo 'message'
         String primeiraMensagem = !errors.isEmpty() ? 
@@ -107,6 +111,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDetails> handleIllegalArgumentException(
             IllegalArgumentException ex, WebRequest request) {
         
+        logger.warn("Argumento ilegal: {}", ex.getMessage());
+
         // Cria um objeto ErrorDetails com os dados do erro
         ErrorDetails errorDetails = new ErrorDetails(
                 LocalDateTime.now(),        // Timestamp do erro
@@ -117,6 +123,29 @@ public class GlobalExceptionHandler {
 
         // Retorna a resposta com status 400 (BAD_REQUEST) e o corpo contendo os detalhes do erro
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Trata todas as outras exceções não capturadas especificamente.
+     * Este é o handler "pega-tudo" para garantir que nenhum erro passe sem ser logado.
+     * 
+     * @param ex      A exceção que foi lançada
+     * @param request O objeto WebRequest contendo informações sobre a requisição
+     * @return ResponseEntity contendo uma mensagem de erro genérica e status HTTP 500 (INTERNAL_SERVER_ERROR)
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleGlobalException(Exception ex, WebRequest request) {
+        // Loga o erro com stack trace completo para depuração
+        logger.error("Ocorreu uma exceção não tratada", ex);
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        body.put("error", "Erro Interno do Servidor");
+        body.put("message", "Ocorreu um erro inesperado. Tente novamente mais tarde.");
+        body.put("path", request.getDescription(false).replace("uri=", ""));
+
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // You can add more exception handlers here as needed
