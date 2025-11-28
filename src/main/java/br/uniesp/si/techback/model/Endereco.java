@@ -1,6 +1,8 @@
 package br.uniesp.si.techback.model;
 
+import br.uniesp.si.techback.validation.CepUnico;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,7 +36,9 @@ public class Endereco {
     @Column(nullable = false, length = 2)
     private String estado;
 
-    @Column(nullable = false, length = 9)
+    @NotBlank(message = "O CEP é obrigatório.")
+    @CepUnico
+    @Column(nullable = false, unique = true, length = 9)
     private String cep;
 
 }
