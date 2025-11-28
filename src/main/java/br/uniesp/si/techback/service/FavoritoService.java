@@ -8,10 +8,12 @@ import br.uniesp.si.techback.model.Serie;
 import br.uniesp.si.techback.model.Usuario;
 import br.uniesp.si.techback.repository.FavoritoRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FavoritoService {
@@ -21,190 +23,151 @@ public class FavoritoService {
     private final FilmeService filmeService;
     private final SerieService serieService;
 
-    // Constantes para o campo itemType
     private static final String TYPE_FILME = "FILME";
     private static final String TYPE_SERIE = "SERIE";
 
-    /**
-     * Cria um novo favorito, validando o usuário, a unicidade e a existência do item (Filme ou Série) usando a modelagem Polimórfica.
-     */
     public Favorito criar(Favorito favorito) {
-
-        // 1. Validação do Usuário
         Long usuarioId = favorito.getUsuario().getId();
-        Usuario usuarioExistente = usuarioService.buscarPorId(usuarioId);
-        // Garante que o objeto Usuario na entity está completo
-        favorito.setUsuario(usuarioExistente);
-
-        // 2. Validação da Unicidade
         Long itemId = favorito.getItemId();
         String itemType = favorito.getItemType();
 
+        log.info("Usuário ID {} tentando favoritar {} ID {}", usuarioId, itemType, itemId);
+
+        Usuario usuarioExistente = usuarioService.buscarPorId(usuarioId);
+        favorito.setUsuario(usuarioExistente);
+
         if (favoritoRepository.existsByUsuarioIdAndItemIdAndItemType(usuarioId, itemId, itemType)) {
+            log.warn("Tentativa de favorito duplicado. Usuário {} já possui o item {} favoritado.", usuarioId, itemId);
             throw new RuntimeException("Este item (" + itemType + " ID: " + itemId + ") já está na lista de favoritos do usuário.");
         }
 
-        // 3. Validação e Atribuição do Item Favorito (Polimorfismo)
         if (TYPE_FILME.equalsIgnoreCase(itemType)) {
-            // Verifica se o filme existe (se não existir, o service lança uma exceção)
             filmeService.buscarPorId(itemId);
         } else if (TYPE_SERIE.equalsIgnoreCase(itemType)) {
-            // Verifica se a série existe (se não existir, o service lança uma exceção)
             serieService.buscarPorId(itemId);
         } else {
-            // O tipo de item é inválido
+            log.error("Tipo de item inválido recebido: {}", itemType);
             throw new RuntimeException("Tipo de item inválido. Deve ser 'FILME' ou 'SERIE'.");
         }
 
-        // 4. Salva o favorito
-        return favoritoRepository.save(favorito);
+        Favorito salvo = favoritoRepository.save(favorito);
+        log.info("Favorito criado com sucesso. ID: {}", salvo.getId());
+        return salvo;
     }
 
     public Favorito criarComDTO(FavoritoRequestDTO dto) {
+        log.info("Recebida solicitação de favorito via DTO. Usuário: {}, Item: {} ({})",
+                dto.getUsuarioId(), dto.getItemId(), dto.getItemType());
 
-        // 1. Validação do Usuário (Dependência 1)
-        // Lança ResourceNotFoundException se o usuário não existir
         Usuario usuarioExistente = usuarioService.buscarPorId(dto.getUsuarioId());
 
-        // 2. Validação da Unicidade (Baseada na chave composta)
         String itemTypeUpper = dto.getItemType().toUpperCase();
 
         if (favoritoRepository.existsByUsuarioIdAndItemIdAndItemType(
-                dto.getUsuarioId(),
-                dto.getItemId(),
-                itemTypeUpper)
-        ) {
+                dto.getUsuarioId(), dto.getItemId(), itemTypeUpper)) {
+            log.warn("Usuário {} tentou favoritar item {} duplicado.", dto.getUsuarioId(), dto.getItemId());
             throw new RuntimeException("Este item já está na lista de favoritos do usuário.");
         }
 
-        // 3. Validação Polimórfica (Checa se o item referenciado existe)
+        log.debug("Verificando existência do item tipo {} com ID {}", itemTypeUpper, dto.getItemId());
+
         if (TYPE_FILME.equals(itemTypeUpper)) {
             filmeService.buscarPorId(dto.getItemId());
         } else if (TYPE_SERIE.equals(itemTypeUpper)) {
             serieService.buscarPorId(dto.getItemId());
         } else {
+            log.error("Tipo de item desconhecido: {}", itemTypeUpper);
             throw new RuntimeException("Tipo de item inválido. Deve ser 'FILME' ou 'SERIE'.");
         }
 
-        // 4. Mapeamento DTO para Entity (Criação do objeto final)
         Favorito novoFavorito = new Favorito();
-
-        // Atribui o objeto Usuário gerenciado pelo JPA
         novoFavorito.setUsuario(usuarioExistente);
-
-        // Atribui os campos polimórficos
         novoFavorito.setItemId(dto.getItemId());
         novoFavorito.setItemType(itemTypeUpper);
 
-        // 5. Salva a Entity
         return favoritoRepository.save(novoFavorito);
     }
 
-// -------------------------------------------------------------
-// Métodos de Listagem e Gerenciamento
-// -------------------------------------------------------------
-
-    /**
-     * Retorna todos os favoritos.
-     * OBS: Ao listar, o Service retorna o Favorito com o ID do Item.
-     * O Controller deve ser responsável por buscar o objeto Filme/Série completo se necessário.
-     */
     public List<Favorito> listarTodos() {
+        log.debug("Listando todos os favoritos do sistema.");
         return favoritoRepository.findAll();
     }
 
-    /**
-     * Busca um favorito pelo ID.
-     */
     public Favorito buscarPorId(Long id) {
         return favoritoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Favorito não encontrado com id: " + id));
+                .orElseThrow(() -> {
+                    log.warn("Favorito ID {} não encontrado.", id);
+                    return new RuntimeException("Favorito não encontrado com id: " + id);
+                });
     }
 
-    /**
-     * Deleta um favorito pelo ID.
-     */
     public void deletar(Long id) {
+        log.info("Solicitação para remover favorito ID: {}", id);
+
         if (!favoritoRepository.existsById(id)) {
+            log.warn("Tentativa de deletar favorito inexistente ID: {}", id);
             throw new RuntimeException("Favorito não encontrado com id: " + id);
         }
         favoritoRepository.deleteById(id);
+        log.info("Favorito ID {} removido com sucesso.", id);
     }
 
-    /**
-     * Lista todos os favoritos de um usuário.
-     */
     public List<Favorito> listarPorUsuario(Long usuarioId) {
-        // Valida se o usuário existe antes de buscar a lista
+        log.debug("Buscando favoritos brutos do usuário ID: {}", usuarioId);
         usuarioService.buscarPorId(usuarioId);
         return favoritoRepository.findByUsuarioId(usuarioId);
     }
 
-    // Em br.uniesp.si.techback.service.FavoritoService.java
-
-    // Adicione este método auxiliar (mapper manual)
     private FavoritoResponseDTO toResponseDTO(Favorito favorito) {
-        // Nota: Para preencher 'itemTitulo', você teria que fazer um lookup adicional
-        // usando o itemType e itemId, mas aqui simplificaremos o mapeamento dos IDs.
-
         FavoritoResponseDTO dto = new FavoritoResponseDTO();
         dto.setId(favorito.getId());
         dto.setUsuarioId(favorito.getUsuario().getId());
         dto.setUsuarioEmail(favorito.getUsuario().getEmail());
         dto.setItemId(favorito.getItemId());
         dto.setItemType(favorito.getItemType());
-
-        // dto.setItemTitulo(... lógica para buscar o título ...)
-
         return dto;
     }
 
-
-    // NOVO MÉTODO (O que a Controller irá chamar)
     public List<FavoritoResponseDTO> listarPorUsuarioComDTO(Long usuarioId) {
-        // 1. Busca o usuário (para validar a existência e ter o objeto)
-        Usuario usuario = usuarioService.buscarPorId(usuarioId);
+        log.info("Listando favoritos (DTO) para usuário ID: {}", usuarioId);
 
-        // 2. Busca a lista de Entities
+        Usuario usuario = usuarioService.buscarPorId(usuarioId);
         List<Favorito> entities = favoritoRepository.findByUsuarioId(usuarioId);
 
-        // 3. Converte a lista de Entities para a lista de DTOs
+        log.debug("Encontrados {} favoritos para o usuário {}.", entities.size(), usuario.getEmail());
+
         return entities.stream()
-                .map(this::toResponseDTO) // Aplica o mapeamento a cada Entity
+                .map(this::toResponseDTO)
                 .toList();
     }
 
-
-    // Em br.uniesp.si.techback.service.FavoritoService.java
-
-// ... (Injete FavoritoRepository, FilmeService e SerieService) ...
-
     public List<Filme> listarFilmesFavoritadosPorUsuario(Long usuarioId) {
-        // 1. Usa a JPQL especializada para buscar APENAS os registros Favorito de FILMES para este usuário
+        log.info("Resolvendo lista de FILMES favoritos para usuário ID: {}", usuarioId);
+
         List<Favorito> favoritosFilme = favoritoRepository.findFilmeFavoritosByUsuario(usuarioId);
 
-        // 2. Mapeia a lista de Favorito (que só tem o ID) para a lista de IDs de Filme
+        log.debug("Usuário possui {} filmes favoritados. Iniciando busca de detalhes...", favoritosFilme.size());
+
         List<Long> filmeIds = favoritosFilme.stream()
                 .map(Favorito::getItemId)
                 .toList();
 
-        // 3. Busca os objetos Filme completos (resolve o polimorfismo)
-        // OBS: Assume-se que 'filmeService' tem um método 'buscarPorId' que não retorna Optional.
         return filmeIds.stream()
                 .map(filmeService::buscarPorId)
                 .toList();
     }
 
     public List<Serie> listarSeriesFavoritadasPorUsuario(Long usuarioId) {
-        // 1. Usa a JPQL especializada para buscar APENAS os registros Favorito de SÉRIES para este usuário
+        log.info("Resolvendo lista de SERIES favoritas para usuário ID: {}", usuarioId);
+
         List<Favorito> favoritosSerie = favoritoRepository.findSerieFavoritosByUsuario(usuarioId);
 
-        // 2. Mapeia a lista de Favorito para a lista de IDs de Série
+        log.debug("Usuário possui {} séries favoritadas. Iniciando busca de detalhes...", favoritosSerie.size());
+
         List<Long> serieIds = favoritosSerie.stream()
                 .map(Favorito::getItemId)
                 .toList();
 
-        // 3. Busca os objetos Série completos
         return serieIds.stream()
                 .map(serieService::buscarPorId)
                 .toList();

@@ -3,52 +3,51 @@ package br.uniesp.si.techback.service;
 import br.uniesp.si.techback.dto.request.AssinaturaRequestDTO;
 import br.uniesp.si.techback.model.Assinatura;
 import br.uniesp.si.techback.model.Plano;
-import br.uniesp.si.techback.model.Usuario; // Assumindo que a model existe
+import br.uniesp.si.techback.model.Usuario;
 import br.uniesp.si.techback.repository.AssinaturaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AssinaturaService {
 
     private final AssinaturaRepository assinaturaRepository;
     private final PlanoService planoService;
-    private final UsuarioService usuarioService; // Assumindo que este serviço existe
+    private final UsuarioService usuarioService;
 
-    /**
-     * Valida e persiste uma nova assinatura.
-     */
     public Assinatura criar(Assinatura assinatura) {
-        // 1. Validação de Dependência: Garante que o Plano e o Usuário existam
-        Long planoId = assinatura.getPlano().getId();
-        Plano planoExistente = planoService.buscarPorId(planoId);
-
         Long usuarioId = assinatura.getUsuario().getId();
-        Usuario usuarioExistente = usuarioService.buscarPorId(usuarioId);
-        // Lembre-se: o UsuarioService deve ser implementado, ou este método falhará.
+        Long planoId = assinatura.getPlano().getId();
 
-        // 2. Atribui os objetos gerenciados pelo JPA
+        log.info("Iniciando criação de assinatura. Usuário ID: {}, Plano ID: {}", usuarioId, planoId);
+
+        Plano planoExistente = planoService.buscarPorId(planoId);
+        Usuario usuarioExistente = usuarioService.buscarPorId(usuarioId);
+
         assinatura.setPlano(planoExistente);
         assinatura.setUsuario(usuarioExistente);
 
-        // 3. (Opcional) Poderia haver uma validação para garantir que o usuário não
-        // possua outra assinatura ATIVA antes de criar uma nova.
+        Assinatura salva = assinaturaRepository.save(assinatura);
 
-        return assinaturaRepository.save(assinatura);
+        log.info("Assinatura criada com sucesso. ID Gerado: {}", salva.getId());
+
+        return salva;
     }
 
-    // Recebe um DTO simplificado e faz a busca das dependências por ID
     public Assinatura criarComDTO(AssinaturaRequestDTO dto) {
 
-        // 1. Busca as dependências (Plano e Usuário) usando os IDs do DTO
+        log.info("Solicitação de assinatura via DTO. Usuário ID: {}, Plano ID: {}", dto.getUsuarioId(), dto.getPlanoId());
+
+        log.debug("Buscando dependências (Usuario/Plano) no banco de dados...");
         Plano planoExistente = planoService.buscarPorId(dto.getPlanoId());
         Usuario usuarioExistente = usuarioService.buscarPorId(dto.getUsuarioId());
 
-        // 2. Mapeamento dos campos do DTO para a Entity
         Assinatura novaAssinatura = new Assinatura();
         novaAssinatura.setUsuario(usuarioExistente);
         novaAssinatura.setPlano(planoExistente);
@@ -56,34 +55,37 @@ public class AssinaturaService {
         novaAssinatura.setDataFim(dto.getDataFim());
         novaAssinatura.setStatus(dto.getStatus());
 
-        // Vantagem: Lógica de negócio e validação ficam isoladas e limpas
-        return assinaturaRepository.save(novaAssinatura);
+        Assinatura salva = assinaturaRepository.save(novaAssinatura);
+
+        log.info("Assinatura (via DTO) persistida com sucesso. ID: {}", salva.getId());
+        return salva;
     }
-    /**
-     * Retorna todas as assinaturas.
-     */
+
     public List<Assinatura> listarTodos() {
+
+        log.debug("Listando todas as assinaturas...");
         return assinaturaRepository.findAll();
     }
 
-    /**
-     * Busca uma assinatura pelo ID.
-     */
     public Assinatura buscarPorId(Long id) {
+        log.debug("Buscando assinatura ID: {}", id);
+
         return assinaturaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Assinatura não encontrada com id: " + id));
+                .orElseThrow(() -> {
+                    log.warn("Assinatura não encontrada. ID: {}", id);
+                    return new RuntimeException("Assinatura não encontrada com id: " + id);
+                });
     }
 
-    /**
-     * Atualiza uma assinatura existente (focado em datas e status).
-     */
     public Assinatura atualizar(Long id, Assinatura assinaturaAtualizada) {
+
+        log.info("Atualizando dados da assinatura ID: {}", id);
+
         Assinatura assinaturaExistente = buscarPorId(id);
 
-        // O ID do Plano e do Usuário geralmente NÃO são alterados em uma atualização de assinatura.
-        // Se a regra de negócio permitir a mudança de plano, a validação de dependência deve ser refeita.
 
-        // Atualiza os campos de controle
+        log.debug("Alterando status de '{}' para '{}'", assinaturaExistente.getStatus(), assinaturaAtualizada.getStatus());
+
         assinaturaExistente.setDataInicio(assinaturaAtualizada.getDataInicio());
         assinaturaExistente.setDataFim(assinaturaAtualizada.getDataFim());
         assinaturaExistente.setStatus(assinaturaAtualizada.getStatus());
@@ -91,22 +93,26 @@ public class AssinaturaService {
         return assinaturaRepository.save(assinaturaExistente);
     }
 
-    /**
-     * Deleta uma assinatura pelo ID.
-     */
     public void deletar(Long id) {
+        log.info("Solicitação de cancelamento/exclusão da assinatura ID: {}", id);
+
         if (!assinaturaRepository.existsById(id)) {
+            log.warn("Tentativa de deletar assinatura inexistente ID: {}", id);
             throw new RuntimeException("Assinatura não encontrada com id: " + id);
         }
         assinaturaRepository.deleteById(id);
+        log.info("Assinatura ID {} deletada com sucesso.", id);
     }
 
-    // Em AssinaturaService.java
-
     public List<Assinatura> listarAssinaturasParaRenovacao() {
-        // Define a data alvo: Daqui a 30 dias
         LocalDateTime dataAlvo = LocalDateTime.now().plusDays(30);
 
-        return assinaturaRepository.findActiveSubscriptionsExpiringSoon(dataAlvo);
+        log.info("Verificando assinaturas que expiram até: {}", dataAlvo);
+
+        List<Assinatura> assinaturas = assinaturaRepository.findActiveSubscriptionsExpiringSoon(dataAlvo);
+
+        log.info("Encontradas {} assinaturas próximas do vencimento.", assinaturas.size());
+
+        return assinaturas;
     }
 }

@@ -4,10 +4,12 @@ import br.uniesp.si.techback.dto.response.ViaCepResponse;
 import br.uniesp.si.techback.exception.CepInvalidoException;
 import br.uniesp.si.techback.exception.CepNaoEncontradoException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j; // 1. Import do SLF4J
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ViaCepService {
@@ -16,37 +18,44 @@ public class ViaCepService {
 
     private final RestTemplate restTemplate;
 
-    /**
-     * Busca os dados de um endereço a partir de um CEP
-     * @param cep CEP a ser consultado (apenas números)
-     * @return Dados do endereço correspondente ao CEP
-     * @throws CepNaoEncontradoException quando o CEP não for encontrado
-     */
     public ViaCepResponse buscarEnderecoPorCep(String cep) {
-        // Remove caracteres não numéricos do CEP
+        log.info("Iniciando consulta externa de endereço para o CEP: '{}'", cep);
+
         String cepLimpo = cep.replaceAll("[^0-9]", "");
-        
-        // Valida o CEP
+
         if (cepLimpo.length() != 8) {
+            log.warn("CEP inválido detectado (tamanho incorreto): '{}'", cep);
             throw new CepInvalidoException(cep);
         }
 
         try {
-            // Faz a requisição para a API do ViaCEP
+            long inicio = System.currentTimeMillis();
+            log.debug("Enviando requisição GET para ViaCEP (CEP: {})", cepLimpo);
+
             ViaCepResponse response = restTemplate.getForObject(
-                    VIA_CEP_URL, 
-                    ViaCepResponse.class, 
+                    VIA_CEP_URL,
+                    ViaCepResponse.class,
                     cepLimpo
             );
 
-            // Verifica se o CEP foi encontrado
+            long tempoTotal = System.currentTimeMillis() - inicio;
+            log.debug("Resposta do ViaCEP recebida em {} ms.", tempoTotal);
+
             if (response == null || response.isErro()) {
+                log.warn("ViaCEP informou que o CEP '{}' não existe na base de dados.", cepLimpo);
                 throw new CepNaoEncontradoException(cep);
             }
 
+            log.info("Endereço encontrado: {}, {} - {}", response.getLogradouro(), response.getLocalidade(), response.getUf());
+
             return response;
+
         } catch (HttpClientErrorException.BadRequest ex) {
+            log.error("Erro de Bad Request ao consultar CEP: {}", cep, ex);
             throw new CepInvalidoException(cep);
+        } catch (Exception ex) {
+            log.error("Falha inesperada na integração com ViaCEP para o CEP {}", cep, ex);
+            throw ex;
         }
     }
 }
