@@ -2,19 +2,23 @@ package br.uniesp.si.techback.controller;
 
 import br.uniesp.si.techback.dto.response.FavoritoResponseDTO;
 import br.uniesp.si.techback.model.Favorito;
+import br.uniesp.si.techback.model.Filme;
+import br.uniesp.si.techback.model.Serie;
 import br.uniesp.si.techback.service.FavoritoService;
-import br.uniesp.si.techback.dto.request.FavoritoRequestDTO; // <-- NOVO IMPORT
+import br.uniesp.si.techback.dto.request.FavoritoRequestDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/favoritos")
 @RequiredArgsConstructor
+@Slf4j
 public class FavoritoController {
 
     private final FavoritoService favoritoService;
@@ -86,5 +90,23 @@ public class FavoritoController {
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         favoritoService.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Em br.uniesp.si.techback.controller.FavoritoController.java
+
+// ... (Injete FavoritoService) ...
+
+    @GetMapping("/usuario/{usuarioId}/filmes")
+    public ResponseEntity<List<Filme>> listarFilmesFavoritosPorUsuario(@PathVariable Long usuarioId) {
+        log.info("Recebida requisição GET para listar filmes favoritos do Usuário ID: {}", usuarioId);
+        List<Filme> filmes = favoritoService.listarFilmesFavoritadosPorUsuario(usuarioId);
+        return ResponseEntity.ok(filmes);
+    }
+
+    @GetMapping("/usuario/{usuarioId}/series")
+    public ResponseEntity<List<Serie>> listarSeriesFavoritasPorUsuario(@PathVariable Long usuarioId) {
+        log.info("Recebida requisição GET para listar séries favoritas do Usuário ID: {}", usuarioId);
+        List<Serie> series = favoritoService.listarSeriesFavoritadasPorUsuario(usuarioId);
+        return ResponseEntity.ok(series);
     }
 }

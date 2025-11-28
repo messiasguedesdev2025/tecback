@@ -5,6 +5,7 @@ import br.uniesp.si.techback.model.Assinatura;
 import br.uniesp.si.techback.service.AssinaturaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/assinaturas")
 @RequiredArgsConstructor
+@Slf4j
 public class AssinaturaController {
 
     private final AssinaturaService assinaturaService;
@@ -60,5 +62,14 @@ public class AssinaturaController {
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         assinaturaService.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // NOVO ENDPOINT DE CONSULTA ESPECIALIZADA: RENOVAÇÃO
+    @GetMapping("/expirando")
+    public ResponseEntity<List<Assinatura>> listarAssinaturasParaRenovacao() {
+        log.info("Recebida requisição GET /api/assinaturas/expirando para listar assinaturas próximas do vencimento.");
+        // Chama o metodo no Service que contém a lógica da query de 30 dias
+        List<Assinatura> assinaturas = assinaturaService.listarAssinaturasParaRenovacao();
+        return ResponseEntity.ok(assinaturas);
     }
 }
