@@ -8,6 +8,7 @@ import br.uniesp.si.techback.repository.AssinaturaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -98,5 +99,14 @@ public class AssinaturaService {
             throw new RuntimeException("Assinatura não encontrada com id: " + id);
         }
         assinaturaRepository.deleteById(id);
+    }
+
+    // Em AssinaturaService.java
+
+    public List<Assinatura> listarAssinaturasParaRenovacao() {
+        // Define a data alvo: Daqui a 30 dias
+        LocalDateTime dataAlvo = LocalDateTime.now().plusDays(30);
+
+        return assinaturaRepository.findActiveSubscriptionsExpiringSoon(dataAlvo);
     }
 }

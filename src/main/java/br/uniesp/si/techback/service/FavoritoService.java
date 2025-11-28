@@ -3,6 +3,8 @@ package br.uniesp.si.techback.service;
 import br.uniesp.si.techback.dto.request.FavoritoRequestDTO;
 import br.uniesp.si.techback.dto.response.FavoritoResponseDTO;
 import br.uniesp.si.techback.model.Favorito;
+import br.uniesp.si.techback.model.Filme;
+import br.uniesp.si.techback.model.Serie;
 import br.uniesp.si.techback.model.Usuario;
 import br.uniesp.si.techback.repository.FavoritoRepository;
 import lombok.RequiredArgsConstructor;
@@ -169,6 +171,42 @@ public class FavoritoService {
         // 3. Converte a lista de Entities para a lista de DTOs
         return entities.stream()
                 .map(this::toResponseDTO) // Aplica o mapeamento a cada Entity
+                .toList();
+    }
+
+
+    // Em br.uniesp.si.techback.service.FavoritoService.java
+
+// ... (Injete FavoritoRepository, FilmeService e SerieService) ...
+
+    public List<Filme> listarFilmesFavoritadosPorUsuario(Long usuarioId) {
+        // 1. Usa a JPQL especializada para buscar APENAS os registros Favorito de FILMES para este usuário
+        List<Favorito> favoritosFilme = favoritoRepository.findFilmeFavoritosByUsuario(usuarioId);
+
+        // 2. Mapeia a lista de Favorito (que só tem o ID) para a lista de IDs de Filme
+        List<Long> filmeIds = favoritosFilme.stream()
+                .map(Favorito::getItemId)
+                .toList();
+
+        // 3. Busca os objetos Filme completos (resolve o polimorfismo)
+        // OBS: Assume-se que 'filmeService' tem um método 'buscarPorId' que não retorna Optional.
+        return filmeIds.stream()
+                .map(filmeService::buscarPorId)
+                .toList();
+    }
+
+    public List<Serie> listarSeriesFavoritadasPorUsuario(Long usuarioId) {
+        // 1. Usa a JPQL especializada para buscar APENAS os registros Favorito de SÉRIES para este usuário
+        List<Favorito> favoritosSerie = favoritoRepository.findSerieFavoritosByUsuario(usuarioId);
+
+        // 2. Mapeia a lista de Favorito para a lista de IDs de Série
+        List<Long> serieIds = favoritosSerie.stream()
+                .map(Favorito::getItemId)
+                .toList();
+
+        // 3. Busca os objetos Série completos
+        return serieIds.stream()
+                .map(serieService::buscarPorId)
                 .toList();
     }
 }
