@@ -39,7 +39,7 @@ public class PlanoController {
 
     @GetMapping
     public ResponseEntity<List<Plano>> listarTodos() {
-        /
+
         LOGGER.info("Recebida requisição GET para listar todos os planos.");
 
         List<Plano> planos = planoService.listarTodos();
@@ -60,24 +60,37 @@ public class PlanoController {
 
         Plano plano = planoService.buscarPorId(id);
 
+
         LOGGER.info("Busca do plano ID {} finalizada com sucesso.", id);
         return ResponseEntity.ok(plano);
     }
-
 
 
     @PutMapping("/{id}")
     public ResponseEntity<Plano> atualizar(@PathVariable Long id,
                                            @Valid @RequestBody Plano planoAtualizado) {
 
-
         LOGGER.info("Recebida requisição PUT para atualizar plano ID: {}", id);
-
 
         LOGGER.debug("Dados de atualização recebidos para o ID {}: {}", id, planoAtualizado);
 
         Plano plano = planoService.atualizar(id, planoAtualizado);
 
 
+        LOGGER.info("Plano ID: {} atualizado com sucesso.", id);
+        return ResponseEntity.ok(plano);
+    }
 
-        LOGGER.info("Plano ID: {}
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+
+        LOGGER.warn("Recebida requisição DELETE para deletar o plano ID: {}", id);
+
+        planoService.deletar(id);
+
+
+        LOGGER.info("Plano ID: {} deletado com sucesso.", id);
+        return ResponseEntity.noContent().build();
+    }
+}
