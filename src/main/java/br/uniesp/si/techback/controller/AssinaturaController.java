@@ -20,56 +20,87 @@ public class AssinaturaController {
 
     private final AssinaturaService assinaturaService;
 
-    // POST: Cria uma nova assinatura
+
     @PostMapping
     public ResponseEntity<Assinatura> criar(@Valid @RequestBody Assinatura assinatura) {
-        // Espera JSON com os IDs aninhados: {"plano": {"id": 1}, "usuario": {"id": 1}, "dataInicio": "..."}
+
+        log.info("Recebida requisição POST para criar nova assinatura.");
+
+        log.debug("Dados recebidos (Assinatura Model): {}", assinatura);
+
         Assinatura novaAssinatura = assinaturaService.criar(assinatura);
+
+
+        log.info("Nova assinatura criada com sucesso. ID: {}", novaAssinatura.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(novaAssinatura);
     }
 
-    // A) ENDPOINT USANDO DTO
+
     @PostMapping("/dto")
     public ResponseEntity<Assinatura> criarComDto(@Valid @RequestBody AssinaturaRequestDTO dto) {
-        // Chama o método que usa o DTO
+        log.info("Recebida requisição POST /dto para criar assinatura usando DTO.");
+        log.debug("DTO recebido: {}", dto);
+
         Assinatura novaAssinatura = assinaturaService.criarComDTO(dto);
+
+        log.info("Assinatura criada via DTO com sucesso. ID: {}", novaAssinatura.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(novaAssinatura);
     }
 
-    // GET: Lista todas as assinaturas
+
     @GetMapping
     public ResponseEntity<List<Assinatura>> listarTodos() {
-        return ResponseEntity.ok(assinaturaService.listarTodos());
+        log.info("Recebida requisição GET para listar todas as assinaturas.");
+        List<Assinatura> assinaturas = assinaturaService.listarTodos();
+
+
+        log.debug("Foram encontradas {} assinaturas.", assinaturas.size());
+        return ResponseEntity.ok(assinaturas);
     }
 
-    // GET: Busca uma assinatura pelo ID
+
     @GetMapping("/{id}")
     public ResponseEntity<Assinatura> buscarPorId(@PathVariable Long id) {
+        log.info("Recebida requisição GET para buscar assinatura pelo ID: {}", id);
+
         Assinatura assinatura = assinaturaService.buscarPorId(id);
+
+        log.info("Assinatura encontrada. ID: {}", id);
         return ResponseEntity.ok(assinatura);
     }
 
-    // PUT: Atualiza uma assinatura
+
     @PutMapping("/{id}")
     public ResponseEntity<Assinatura> atualizar(@PathVariable Long id,
                                                 @Valid @RequestBody Assinatura assinaturaAtualizada) {
+        log.info("Recebida requisição PUT para atualizar a assinatura ID: {}", id);
+        log.debug("Dados de atualização recebidos: {}", assinaturaAtualizada);
+
         Assinatura assinatura = assinaturaService.atualizar(id, assinaturaAtualizada);
+
+        log.info("Assinatura ID: {} atualizada com sucesso.", id);
         return ResponseEntity.ok(assinatura);
     }
 
-    // DELETE: Deleta uma assinatura
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        log.warn("Recebida requisição DELETE para deletar a assinatura ID: {}", id); // Nível WARN para operação destrutiva
+
         assinaturaService.deletar(id);
+
+        log.info("Assinatura ID: {} deletada com sucesso.", id);
         return ResponseEntity.noContent().build();
     }
 
-    // NOVO ENDPOINT DE CONSULTA ESPECIALIZADA: RENOVAÇÃO
+
     @GetMapping("/expirando")
     public ResponseEntity<List<Assinatura>> listarAssinaturasParaRenovacao() {
         log.info("Recebida requisição GET /api/assinaturas/expirando para listar assinaturas próximas do vencimento.");
-        // Chama o metodo no Service que contém a lógica da query de 30 dias
+
         List<Assinatura> assinaturas = assinaturaService.listarAssinaturasParaRenovacao();
+
+        log.info("Consulta de renovação finalizada. Foram encontradas {} assinaturas para renovação.", assinaturas.size());
         return ResponseEntity.ok(assinaturas);
     }
 }
