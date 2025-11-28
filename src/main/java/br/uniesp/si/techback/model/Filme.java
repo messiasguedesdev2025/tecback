@@ -30,4 +30,16 @@ public class Filme {
     @JoinColumn(name = "genero_id", nullable = false)
     private Genero genero;
 
+    @Column(nullable = false)
+    private int anoLancamento;
+
+    @Column(nullable = false)
+    private int classificacaoIndicativa;
+
+    @Column(nullable = false)
+    private boolean disponivel;
+
+    @Column(nullable = false)
+    private int estoque;
+
 }
