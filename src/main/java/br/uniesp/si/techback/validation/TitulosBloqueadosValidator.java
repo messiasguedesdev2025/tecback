@@ -5,16 +5,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Implementação do validador para a anotação @TitulosBloqueadosFilme.
- * Este validador verifica se o texto contém alguma palavra da lista de palavras bloqueadas.
- * A verificação é case-insensitive.
- * 
- * Palavras bloqueadas atualmente:
- * - sexo, drogas, violência, pornô, xxx, nazista, racista
- * 
- * Para adicionar mais palavras, basta incluí-las na lista PALAVRAS_BLOQUEADAS.
- */
+
 
 public class TitulosBloqueadosValidator implements ConstraintValidator<TitulosBloqueados, String> {
 
@@ -24,13 +15,6 @@ public class TitulosBloqueadosValidator implements ConstraintValidator<TitulosBl
         "sexo", "drogas", "violência", "pornô", "xxx", "nazista", "racista"
     );
 
-    /**
-     * Método principal de validação.
-     * 
-     * @param titulo O valor do campo que está sendo validado
-     * @param context Contexto no qual a validação está sendo executada
-     * @return true se o título for válido (não contém palavras bloqueadas), false caso contrário
-     */
     @Override
     public boolean isValid(String titulo, ConstraintValidatorContext context) {
         // Se o título for nulo ou vazio, consideramos válido

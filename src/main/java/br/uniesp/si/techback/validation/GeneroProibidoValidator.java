@@ -5,11 +5,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Implementação do validador para a anotação @GeneroProibido.
- * Este validador verifica se o gênero fornecido está na lista de gêneros bloqueados.
- * A verificação é case-insensitive.
- */
+
 public class GeneroProibidoValidator implements ConstraintValidator<GeneroProibido, String> {
 
     // Lista de gêneros que não são permitidos.

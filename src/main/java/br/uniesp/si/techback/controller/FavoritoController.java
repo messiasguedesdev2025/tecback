@@ -23,24 +23,33 @@ public class FavoritoController {
 
     private final FavoritoService favoritoService;
 
-    // Em FavoritoController.java
+
 
     @PostMapping // Endpoint para testar o método sem DTO
     public ResponseEntity<Favorito> criar(@Valid @RequestBody Favorito favorito) {
 
+        log.info("Recebida requisição POST para criar favorito (usando Entity).");
+
+        log.debug("Dados de Favorito recebidos: {}", favorito);
+
         Favorito novoFavorito = favoritoService.criar(favorito);
 
+
+        log.info("Novo Favorito criado com sucesso. ID: {}", novoFavorito.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(novoFavorito);
     }
-    // POST: Adiciona um item (Filme OU Série) aos favoritos
+
     @PostMapping("/criar-com-dto")
-    // MUDANÇA: Agora recebe o DTO de Requisição e não a Entity completa.
+
     public ResponseEntity<FavoritoResponseDTO> criarComDTO(@Valid @RequestBody FavoritoRequestDTO dto) {
 
-        // A lógica de criação foi transferida para aceitar o DTO no Service,
-        // garantindo que a validação de tipo de item seja feita.
+        log.info("Recebida requisição POST para criar favorito usando DTO.");
+
+        log.debug("DTO de Favorito recebido: {}", dto);
+
+
         Favorito novoFavorito = favoritoService.criarComDTO(dto);
-        // Agora que a service respondeu, vou transformar novoFavorito numa forma DTO
+
 
         FavoritoResponseDTO favoritoDTO = new FavoritoResponseDTO();
         favoritoDTO.setId(novoFavorito.getId());
@@ -49,64 +58,115 @@ public class FavoritoController {
         favoritoDTO.setUsuarioId(novoFavorito.getUsuario().getId());
         favoritoDTO.setUsuarioEmail(novoFavorito.getUsuario().getEmail());
 
+
+        log.info("Novo Favorito (via DTO) criado com sucesso. ID: {}", novoFavorito.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(favoritoDTO);
     }
 
-    // GET: Lista todos os favoritos (Pode ser refinado para listar por usuário)
-    // Esses métodos continuam retornando a Entity, pois a serialização resolve a FK.
+
     @GetMapping
     public ResponseEntity<List<Favorito>> listarTodos() {
+
+        log.info("Recebida requisição GET para listar todos os favoritos.");
+
+        List<Favorito> favoritos = favoritoService.listarTodos();
+
+
+        log.debug("Encontrados {} favoritos no total.", favoritos.size());
+
+
+        log.info("Listagem de todos os favoritos finalizada.");
         return ResponseEntity.ok(favoritoService.listarTodos());
     }
 
-    // GET: Busca um favorito pelo ID
+
     @GetMapping("/{id}")
     public ResponseEntity<Favorito> buscarPorId(@PathVariable Long id) {
+
+        log.info("Recebida requisição GET para buscar favorito pelo ID: {}", id);
+
         Favorito favorito = favoritoService.buscarPorId(id);
+
+
+        log.info("Busca de favorito ID {} finalizada com sucesso.", id);
         return ResponseEntity.ok(favorito);
     }
 
-    // GET: Lista favoritos de um usuário específico (Exemplo de endpoint mais útil)
+
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<Favorito>> listarPorUsuario(@PathVariable Long usuarioId) {
+        log.info("Recebida requisição GET para listar favoritos do Usuário ID: {}", usuarioId);
+
         List<Favorito> favoritos = favoritoService.listarPorUsuario(usuarioId);
 
+
+        log.debug("Encontrados {} favoritos para o Usuário ID: {}", favoritos.size(), usuarioId);
+
+
+        log.info("Listagem de favoritos para o Usuário ID {} finalizada.", usuarioId);
         return ResponseEntity.ok(favoritos);
     }
 
     @GetMapping("/usuarioDTO/{usuarioId}")
-//  MUDANÇA: Retorna a lista de DTOs
+
     public ResponseEntity<List<FavoritoResponseDTO>> listarPorUsuarioDTO(@PathVariable Long usuarioId) {
 
-        // 🚨 MUDANÇA: Chama o método que retorna a lista de DTOs
+        log.info("Recebida requisição GET para listar favoritos (retornando DTOs) do Usuário ID: {}", usuarioId);
+
+
         List<FavoritoResponseDTO> favoritosDTO = favoritoService.listarPorUsuarioComDTO(usuarioId);
 
+
+        log.debug("Encontrados {} DTOs de favoritos para o Usuário ID: {}", favoritosDTO.size(), usuarioId);
+
+
+        log.info("Listagem de DTOs de favoritos para o Usuário ID {} finalizada.", usuarioId);
         return ResponseEntity.ok(favoritosDTO);
     }
 
 
-    // DELETE: Remove um item dos favoritos
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
+
+        log.warn("Recebida requisição DELETE para remover o favorito ID: {}", id);
+
         favoritoService.deletar(id);
+
+
+        log.info("Favorito ID: {} deletado com sucesso.", id);
         return ResponseEntity.noContent().build();
     }
 
-    // Em br.uniesp.si.techback.controller.FavoritoController.java
 
-// ... (Injete FavoritoService) ...
 
     @GetMapping("/usuario/{usuarioId}/filmes")
     public ResponseEntity<List<Filme>> listarFilmesFavoritosPorUsuario(@PathVariable Long usuarioId) {
+
         log.info("Recebida requisição GET para listar filmes favoritos do Usuário ID: {}", usuarioId);
+
         List<Filme> filmes = favoritoService.listarFilmesFavoritadosPorUsuario(usuarioId);
+
+
+        log.debug("Encontrados {} filmes favoritos para o Usuário ID: {}", filmes.size(), usuarioId);
+
+
+        log.info("Listagem de filmes favoritos para o Usuário ID {} finalizada.", usuarioId);
         return ResponseEntity.ok(filmes);
     }
 
     @GetMapping("/usuario/{usuarioId}/series")
     public ResponseEntity<List<Serie>> listarSeriesFavoritasPorUsuario(@PathVariable Long usuarioId) {
+
         log.info("Recebida requisição GET para listar séries favoritas do Usuário ID: {}", usuarioId);
+
         List<Serie> series = favoritoService.listarSeriesFavoritadasPorUsuario(usuarioId);
+
+
+        log.debug("Encontradas {} séries favoritas para o Usuário ID: {}", series.size(), usuarioId);
+
+
+        log.info("Listagem de séries favoritas para o Usuário ID {} finalizada.", usuarioId);
         return ResponseEntity.ok(series);
     }
 }

@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 @RestController
@@ -15,41 +18,80 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GeneroController {
 
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeneroController.class);
+
     private final GeneroService generoService;
 
-    // POST: Cria um novo gênero
+
     @PostMapping
     public ResponseEntity<Genero> criar(@Valid @RequestBody Genero genero) {
-        // O @Valid garante que a validação @TitulosBloqueados seja executada
+
+        LOGGER.info("Recebida requisição POST para criar um novo gênero.");
+
+        LOGGER.debug("Dados de Gênero recebidos: {}", genero);
+
+
         Genero novoGenero = generoService.criar(genero);
+
+        LOGGER.info("Gênero criado com sucesso. ID: {}", novoGenero.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(novoGenero);
     }
 
-    // GET: Lista todos os gêneros
+
     @GetMapping
     public ResponseEntity<List<Genero>> listarTodos() {
-        return ResponseEntity.ok(generoService.listarTodos());
+
+        LOGGER.info("Recebida requisição GET para listar todos os gêneros.");
+
+        List<Genero> generos = generoService.listarTodos();
+
+
+        LOGGER.debug("Encontrados {} gêneros.", generos.size());
+
+        LOGGER.info("Listagem de gêneros finalizada.");
+        return ResponseEntity.ok(generos);
     }
 
-    // GET: Busca um gênero pelo ID
+
     @GetMapping("/{id}")
     public ResponseEntity<Genero> buscarPorId(@PathVariable Long id) {
+
+        LOGGER.info("Recebida requisição GET para buscar gênero pelo ID: {}", id);
+
         Genero genero = generoService.buscarPorId(id);
+
+
+        LOGGER.info("Busca do gênero ID {} finalizada com sucesso.", id);
         return ResponseEntity.ok(genero);
     }
 
-    // PUT: Atualiza um gênero
+
     @PutMapping("/{id}")
     public ResponseEntity<Genero> atualizar(@PathVariable Long id,
                                             @Valid @RequestBody Genero generoAtualizado) {
+
+        LOGGER.info("Recebida requisição PUT para atualizar gênero ID: {}", id);
+
+        LOGGER.debug("Dados de atualização recebidos para o ID {}: {}", id, generoAtualizado);
+
         Genero genero = generoService.atualizar(id, generoAtualizado);
+
+
+        LOGGER.info("Gênero ID: {} atualizado com sucesso.", id);
         return ResponseEntity.ok(genero);
     }
 
-    // DELETE: Deleta um gênero
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
+
+        LOGGER.warn("Recebida requisição DELETE para deletar o gênero ID: {}", id);
+
         generoService.deletar(id);
+
+
+        LOGGER.info("Gênero ID: {} deletado com sucesso.", id);
         return ResponseEntity.noContent().build(); // Retorna 204 No Content
     }
 }
