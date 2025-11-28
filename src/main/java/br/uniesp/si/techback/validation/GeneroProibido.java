@@ -4,11 +4,7 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
-/**
- * Anotação personalizada para validar se um gênero de filme ou série é permitido.
- * Esta anotação pode ser usada em campos de String para garantir que não correspondam
- * a gêneros em uma lista de bloqueio.
- */
+
 @Documented
 @Constraint(validatedBy = GeneroProibidoValidator.class)
 @Target({ElementType.FIELD, ElementType.PARAMETER})

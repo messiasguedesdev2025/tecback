@@ -12,10 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Componente para inicializar o banco de dados com dados de teste (Gêneros, Filmes e Séries).
- * Este componente segue o princípio DRY (Don't Repeat Yourself) para um código mais limpo.
- */
+
 @Component
 public class DatabaseInitializer implements CommandLineRunner {
 
@@ -63,20 +60,13 @@ public class DatabaseInitializer implements CommandLineRunner {
         System.out.println("Banco de dados inicializado com sucesso!");
     }
 
-    /**
-     * Helper Method: Cria e salva uma nova instância de Genero.
-     * @param nome O nome do gênero.
-     * @return A entidade Genero salva.
-     */
     private Genero createAndSaveGenero(String nome) {
         Genero genero = new Genero();
         genero.setNome(nome);
         return generoRepository.save(genero);
     }
 
-    /**
-     * Helper Method: Cria e salva uma nova instância de Filme.
-     */
+
     private void createAndSaveFilme(String titulo, String descricao, Integer anoLancamento, Genero genero) {
         Filme filme = new Filme();
         filme.setTitulo(titulo);
@@ -86,9 +76,6 @@ public class DatabaseInitializer implements CommandLineRunner {
         filmeRepository.save(filme);
     }
 
-    /**
-     * Helper Method: Cria e salva uma nova instância de Série.
-     */
     private void createAndSaveSerie(String titulo, String descricao, Integer temporadas, Integer totalEpisodios, Genero genero) {
         Serie serie = new Serie();
         serie.setTitulo(titulo);
