@@ -32,7 +32,7 @@ public class SecurityConfig {
                         .requestMatchers(SWAGGER_PATHS).permitAll()
                         // Qualquer outra requisição deve ser autenticada (padrão)
                         .anyRequest().authenticated()
-                );
+                ).headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
         return http.build();
     }
