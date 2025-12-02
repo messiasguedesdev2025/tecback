@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PlanoRepository extends JpaRepository<Plano, Long> {
-    // Método para verificar se um plano com o mesmo nome já existe
+    // Metodo verificar se um plano com o mesmo nome já existe
     boolean existsByNome(String nome);
 }

@@ -20,11 +20,11 @@ public class Favorito {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    // NOVO: Chave Estrangeira Genérica (O ID do Filme ou da Série)
+
     @Column(name = "item_id", nullable = false)
     private Long itemId;
 
-    // NOVO: Coluna Identificadora do Tipo de Item (Ex: "FILME" ou "SERIE")
+
     @Column(name = "item_type", nullable = false, length = 10)
     private String itemType;
 }

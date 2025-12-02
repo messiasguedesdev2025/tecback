@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
-    // Útil para login e validação de unicidade
+    //login e validação de unicidade
     boolean existsByEmail(String email);
 
-    // Buscar por email (para autenticação)
+    // Buscar por email
     Usuario findByEmail(String email);
 }

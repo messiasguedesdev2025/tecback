@@ -6,9 +6,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FilmeRepository extends JpaRepository<Filme, Long> {
-    // Método útil para buscar filmes pelo título
+    // Metodo buscar filmes pelo título
     Filme findByTitulo(String titulo);
 
-    // Método para verificar se um filme com um certo título já existe
+    // Metodo verificar se um filme com um certo título já existe
     boolean existsByTitulo(String titulo);
 }

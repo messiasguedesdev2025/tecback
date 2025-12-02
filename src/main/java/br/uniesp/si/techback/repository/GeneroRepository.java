@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GeneroRepository extends JpaRepository<Genero, Long> {
-    // Método para verificar a unicidade do nome, útil para validação customizada
+    // Metodo para verificar a unicidade do nome
     boolean existsByNome(String nome);
 }

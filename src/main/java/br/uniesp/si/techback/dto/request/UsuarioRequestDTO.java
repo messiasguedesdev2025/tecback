@@ -12,6 +12,6 @@ public class UsuarioRequestDTO {
     @Size(min = 8)
     private String senha;
 
-    // Referencia o Endereco pelo ID
+
     private Long enderecoId;
 }

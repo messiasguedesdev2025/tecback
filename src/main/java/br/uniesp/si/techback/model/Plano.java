@@ -28,8 +28,8 @@ public class Plano {
     private BigDecimal preco;
 
     @Column(nullable = false)
-    private int duracaoMeses; // duração em meses
+    private int duracaoMeses;
 
     @Column(nullable = false)
-    private int limiteDispositivos; // dispositivos simultâneos
+    private int limiteDispositivos;
 }

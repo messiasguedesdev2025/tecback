@@ -10,5 +10,5 @@ public class FavoritoResponseDTO {
 
 
     private Long usuarioId;
-    private String usuarioEmail; // Opcional: Para saber quem é o dono
+    private String usuarioEmail;
 }

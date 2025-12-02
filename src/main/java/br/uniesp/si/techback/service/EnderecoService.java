@@ -17,7 +17,7 @@ public class EnderecoService {
     private final EnderecoRepository enderecoRepository;
     private final ViaCepService viaCepService;
 
-    // Método crucial: Integração externa
+    //Integração externa
     public Endereco buscarEnderecoParaPreenchimento(String cep) {
         log.info("Iniciando busca externa de endereço pelo CEP: {}", cep);
 

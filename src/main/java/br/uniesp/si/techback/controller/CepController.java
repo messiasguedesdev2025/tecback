@@ -18,11 +18,6 @@ public class CepController {
 
     private final ViaCepService viaCepService;
 
-    /**
-     * Endpoint para consulta de CEP
-     * @param cep Número do CEP a ser consultado (pode conter ou não formatação)
-     * @return Dados do endereço correspondente ao CEP
-     */
     @GetMapping("/{cep}")
     public ResponseEntity<ViaCepResponse> consultarCep(@PathVariable String cep) {
 

@@ -9,6 +9,7 @@ import java.lang.annotation.*;
 @Constraint(validatedBy = GeneroProibidoValidator.class)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
+
 public @interface GeneroProibido {
     String message() default "O gênero informado não é permitido";
     Class<?>[] groups() default {};

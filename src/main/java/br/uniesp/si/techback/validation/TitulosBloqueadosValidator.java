@@ -10,7 +10,7 @@ import java.util.List;
 public class TitulosBloqueadosValidator implements ConstraintValidator<TitulosBloqueados, String> {
 
     // Lista de palavras que não são permitidas nos títulos de filmes
-    // Esta lista pode ser facilmente estendida conforme necessário
+
     private static final List<String> PALAVRAS_BLOQUEADAS = Arrays.asList(
         "sexo", "drogas", "violência", "pornô", "xxx", "nazista", "racista"
     );

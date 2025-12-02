@@ -5,9 +5,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Validador que verifica se um CEP já está cadastrado no banco de dados.
- */
+
 public class CepUnicoValidator implements ConstraintValidator<CepUnico, String> {
 
     @Autowired
